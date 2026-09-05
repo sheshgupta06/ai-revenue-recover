@@ -1,0 +1,11 @@
+payment_id,customer_id,amount,currency,payment_method,payment_route,timestamp,failure_reason,previous_attempts,historical_success_rate,customer_tenure_days,subscription_status,checkout_abandonment,merchant_category,previous_recovery_actions,opt_out,recovery_window_valid,dataset_type,expected_action
+demo_pay_001,demo_cust_001,2500,INR,card,card_gateway,2026-09-05T15:55:00+00:00,expired_card,0,0.96,420,inactive,False,ecommerce,,False,True,DEMO,PAYMENT_LINK
+demo_pay_002,demo_cust_002,1800,INR,upi,upi_gateway,2026-09-05T15:50:00+00:00,checkout_abandoned,0,0.88,35,none,True,ecommerce,,False,True,DEMO,PAYMENT_LINK
+demo_pay_003,demo_cust_003,3200,INR,card,card_gateway,2026-09-05T15:45:00+00:00,expired_card,0,0.94,610,inactive,False,online_services,,False,True,DEMO,PAYMENT_LINK
+demo_pay_004,demo_cust_004,2200,INR,upi,upi_gateway,2026-09-05T15:40:00+00:00,checkout_abandoned,0,0.91,120,none,True,retail,,False,True,DEMO,PAYMENT_LINK
+demo_pay_005,demo_cust_005,4500,INR,card,card_gateway,2026-09-05T15:35:00+00:00,expired_card,0,0.97,780,inactive,False,ecommerce,,False,True,DEMO,PAYMENT_LINK
+demo_pay_006,demo_cust_006,1500,INR,upi,upi_gateway,2026-09-05T15:30:00+00:00,checkout_abandoned,0,0.86,18,none,True,education,,False,True,DEMO,PAYMENT_LINK
+demo_pay_007,demo_cust_007,2800,INR,card,card_gateway,2026-09-05T15:25:00+00:00,expired_card,0,0.93,300,inactive,False,subscriptions,,False,True,DEMO,PAYMENT_LINK
+demo_pay_008,demo_cust_008,2100,INR,upi,upi_gateway,2026-09-05T15:20:00+00:00,checkout_abandoned,0,0.9,75,none,True,travel,,False,True,DEMO,PAYMENT_LINK
+demo_pay_009,demo_cust_009,3900,INR,card,card_gateway,2026-09-05T15:15:00+00:00,expired_card,0,0.95,510,inactive,False,digital_goods,,False,True,DEMO,PAYMENT_LINK
+demo_pay_010,demo_cust_010,1700,INR,upi,upi_gateway,2026-09-05T15:10:00+00:00,checkout_abandoned,0,0.89,42,none,True,retail,,False,True,DEMO,PAYMENT_LINK

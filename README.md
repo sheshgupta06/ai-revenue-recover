@@ -63,6 +63,10 @@ frontend/
 run.ps1                Starts backend and frontend locally on Windows
 ```
 
+## Demo Dataset
+
+The repository also includes `payment_link_demo_dataset.csv` as a supplemental, reproducible demo-data reference. The canonical live Razorpay Test Mode fixtures remain the five database cases `demo_payment_link_001` through `demo_payment_link_005`; importing the CSV does not replace evaluation data or create duplicate live-demo cases.
+
 ## Local Setup
 
 ### 1. Configure the environment
