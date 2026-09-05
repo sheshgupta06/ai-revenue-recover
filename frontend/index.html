@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Recovery Console — TEST MODE</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css?v=2.0">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="app-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div style="font-size: 18px; font-weight: 700; color: var(--accent-primary); font-family: var(--font-heading);">Revenue Recovery</div>
+                </div>
+                <div class="brand-descriptor">AI REVENUE RECOVERY CONSOLE</div>
+                <div style="margin-top: 12px;">
+                    <span class="badge-env">TEST MODE</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-scrollable">
+                <div class="nav-group">
+                    <div class="nav-group-title">OVERVIEW</div>
+                    <button class="nav-link-btn active nav-btn" data-target="section-overview">
+                        <span class="nav-icon">📊</span> Dashboard
+                    </button>
+                    <button class="nav-link-btn nav-btn" data-target="section-risk">
+                        <span class="nav-icon">🎯</span> Revenue Risk
+                    </button>
+                    <button class="nav-link-btn nav-btn" data-target="section-analytics">
+                        <span class="nav-icon">📈</span> Analytics
+                    </button>
+                </div>
+                
+                <div class="nav-group">
+                    <div class="nav-group-title">RECOVERY</div>
+                    <button class="nav-link-btn nav-btn" data-target="section-cases">
+                        <span class="nav-icon">📋</span> Active Cases
+                    </button>
+                    <button class="nav-link-btn nav-btn" data-target="section-actions">
+                        <span class="nav-icon">⚡</span> Recovery Actions
+                    </button>
+                    <button class="nav-link-btn nav-btn" data-target="section-outcomes">
+                        <span class="nav-icon">✓</span> Recovery Outcomes
+                    </button>
+                </div>
+                
+                <div class="nav-group">
+                    <div class="nav-group-title">AI & DECISIONS</div>
+                    <button class="nav-link-btn nav-btn" data-target="section-ai-decisions">
+                        <span class="nav-icon">🧠</span> AI Decisions
+                    </button>
+                    <button class="nav-link-btn nav-btn" data-target="section-evaluation">
+                        <span class="nav-icon">🔬</span> AI vs Baseline
+                    </button>
+                    <button class="nav-link-btn nav-btn" data-target="section-policy">
+                        <span class="nav-icon">🛡️</span> Policy & Safety
+                    </button>
+                </div>
+                
+                <div class="nav-group">
+                    <div class="nav-group-title">SYSTEM</div>
+                    <button class="nav-link-btn nav-btn" data-target="section-audit">
+                        <span class="nav-icon">📝</span> Audit Logs
+                    </button>
+                    <button class="nav-link-btn nav-btn" data-target="section-reliability">
+                        <span class="nav-icon">🔒</span> Reliability
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Main Content Area -->
+        <div class="main-layout">
+            <!-- Top Breadcrumb & User Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <div class="breadcrumb-path">Console > <span id="breadcrumb-current">Overview</span></div>
+                    <div class="header-search">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="Search cases, payments, customers..." disabled>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-status-indicator">
+                        <span class="status-dot"></span>
+                        <span>Active System</span>
+                    </div>
+                    <button class="header-icon-btn" title="System Help">❓</button>
+                    <button class="header-icon-btn" title="Alerts & Notifications">🔔</button>
+                    <div class="user-avatar" title="Developer Portal">JD</div>
+                </div>
+            </header>
+
+            <!-- Main Page Content Frame -->
+            <main class="page-content">
+                
+                <!-- SECTION 1: EXECUTIVE OVERVIEW -->
+                <section id="section-overview" class="content-section active">
+                    <div class="page-title-block">
+                        <h2>Revenue Recovery</h2>
+                        <p>Detect failed payments, prioritize revenue at risk, and orchestrate safe recovery actions.</p>
+                    </div>
+
+                    <!-- Filters bar -->
+                    <div class="filter-bar">
+                        <div class="time-filters">
+                            <button class="time-btn active">Today</button>
+                            <button class="time-btn">7 Days</button>
+                            <button class="time-btn">30 Days</button>
+                            <button class="time-btn">Custom</button>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 500;">
+                            Last updated: Just now
+                        </div>
+                    </div>
+
+                    <!-- Executive KPI cards grid -->
+                    <div class="kpi-cards-grid">
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Revenue at Risk</span>
+                                <span class="kpi-card-icon">🎯</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="kpi-rev-at-risk" style="color: var(--accent-amber)">₹0.00</h2>
+                            <span class="kpi-card-desc" id="kpi-cases-at-risk">0 active cases</span>
+                        </div>
+                        
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Recovered Revenue</span>
+                                <span class="kpi-card-icon">💰</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="kpi-rev-recovered" style="color: var(--accent-green)">₹0.00</h2>
+                            <span class="kpi-card-desc"><span class="badge badge-green">Verified Real / Test Mode</span></span>
+                        </div>
+                        
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Overall Recovery Rate</span>
+                                <span class="kpi-card-icon">📈</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="kpi-recovery-rate">0.00%</h2>
+                            <span class="kpi-card-desc" id="kpi-uplift-rate">Uplift vs Baseline: --</span>
+                        </div>
+                        
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Active Recovery Cases</span>
+                                <span class="kpi-card-icon">🔄</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="kpi-active-cases">0</h2>
+                            <span class="kpi-card-desc" id="kpi-resolved-cases">0 cases resolved</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual flow diagram for judges -->
+                    <div class="orchestration-section">
+                        <h3>Closed-Loop Recovery Agent Workflow</h3>
+                        <div class="flow-steps-container">
+                            <div class="flow-step-item">
+                                <div class="flow-step-icon">🚨</div>
+                                <div class="flow-step-label">FAILED PAYMENT</div>
+                            </div>
+                            <div class="flow-step-arrow">➔</div>
+                            <div class="flow-step-item">
+                                <div class="flow-step-icon">📊</div>
+                                <div class="flow-step-label">RISK ANALYSIS</div>
+                            </div>
+                            <div class="flow-step-arrow">➔</div>
+                            <div class="flow-step-item">
+                                <div class="flow-step-icon">💡</div>
+                                <div class="flow-step-label">AI DECISION</div>
+                            </div>
+                            <div class="flow-step-arrow">➔</div>
+                            <div class="flow-step-item">
+                                <div class="flow-step-icon">🛡️</div>
+                                <div class="flow-step-label">POLICY CHECK</div>
+                            </div>
+                            <div class="flow-step-arrow">➔</div>
+                            <div class="flow-step-item flow-step-highlight">
+                                <div class="flow-step-icon">💳</div>
+                                <div class="flow-step-label">RAZORPAY ACTION</div>
+                            </div>
+                            <div class="flow-step-arrow">➔</div>
+                            <div class="flow-step-item flow-step-highlight">
+                                <div class="flow-step-icon">🔄</div>
+                                <div class="flow-step-label">RAZORPAY STATUS</div>
+                            </div>
+                            <div class="flow-step-arrow">➔</div>
+                            <div class="flow-step-item flow-step-highlight-green">
+                                <div class="flow-step-icon">🔍</div>
+                                <div class="flow-step-label">VERIFIED OUTCOME</div>
+                            </div>
+                            <div class="flow-step-arrow">➔</div>
+                            <div class="flow-step-item flow-step-highlight-green-fill">
+                                <div class="flow-step-icon">💰</div>
+                                <div class="flow-step-label">RECOVERED</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts main grid -->
+                    <div class="dashboard-main-grid">
+                        <div class="dashboard-widget-card">
+                            <h3>AI vs Baseline Comparison</h3>
+                            <div class="chart-frame">
+                                <canvas id="chart-comparison"></canvas>
+                            </div>
+                        </div>
+                        <div class="dashboard-widget-card">
+                            <h3>Payment Failures by Method</h3>
+                            <div class="chart-frame">
+                                <canvas id="chart-failures"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Safety & Reliability Panels Grid -->
+                    <div class="dashboard-main-grid">
+                        <div class="dashboard-widget-card">
+                            <h3>Safety & Governance</h3>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Deterministic Validation Required</strong>
+                                    <span>All AI decisions are verified against the Policy Engine.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Anonymized Prompt Context</strong>
+                                    <span>Personal customer details (PII) are scrubbed before LLM dispatch.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Razorpay Policy Gated</strong>
+                                    <span>No real transactions or link actions occur without consent parameters.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Isolation of Synthetic Data</strong>
+                                    <span>Simulation statistics are strictly separated from real dashboard metrics.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-widget-card">
+                            <h3>Reliability & Guardrails</h3>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>AI Provider Fallback</strong>
+                                    <span>Times out cleanly and triggers deterministic fallback actions.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>Webhook Idempotency Guard</strong>
+                                    <span>Webhook Event constraints prevent duplicate processing and double outcomes.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>Amount & Currency Mismatch Guard</strong>
+                                    <span>Blocks outcome verification if paid amount does not match risk value.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>Outage Connection Guard</strong>
+                                    <span>Fails cleanly instead of fabricating payment URLs when SDK is offline.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 1B: REVENUE RISK -->
+                <section id="section-risk" class="content-section">
+                    <div class="page-title-block">
+                        <h2>Revenue Risk Analysis</h2>
+                        <p>Real-time analysis of revenue at risk across all failed payment events.</p>
+                    </div>
+
+                    <div class="dashboard-main-grid">
+                        <div class="dashboard-widget-card">
+                            <h3>Risk Distribution by Amount</h3>
+                            <div class="chart-frame">
+                                <canvas id="chart-risk-amount"></canvas>
+                            </div>
+                        </div>
+                        <div class="dashboard-widget-card">
+                            <h3>Risk by Payment Method</h3>
+                            <div class="chart-frame">
+                                <canvas id="chart-risk-method"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-widget-card">
+                        <h3>High-Risk Cases Requiring Attention</h3>
+                        <div class="table-wrapper">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Case ID</th>
+                                        <th>Amount at Risk</th>
+                                        <th>Risk Score</th>
+                                        <th>Failure Reason</th>
+                                        <th>Days Since Failure</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="risk-cases-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; color: var(--text-muted);">Loading high-risk cases...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 1C: ANALYTICS -->
+                <section id="section-analytics" class="content-section">
+                    <div class="page-title-block">
+                        <h2>Recovery Analytics</h2>
+                        <p>Performance metrics and trends for recovery operations.</p>
+                    </div>
+
+                    <div class="dashboard-main-grid">
+                        <div class="dashboard-widget-card">
+                            <h3>Recovery Rate Trend</h3>
+                            <div class="chart-frame">
+                                <canvas id="chart-recovery-trend"></canvas>
+                            </div>
+                        </div>
+                        <div class="dashboard-widget-card">
+                            <h3>Action Type Distribution</h3>
+                            <div class="chart-frame">
+                                <canvas id="chart-action-types"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-main-grid">
+                        <div class="dashboard-widget-card">
+                            <h3>Performance by Strategy</h3>
+                            <div style="padding: 16px;">
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                                    <div>
+                                        <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">AI Strategy</div>
+                                        <div style="font-size: 24px; font-weight: 700; color: var(--accent-primary);" id="analytics-ai-rate">0.0%</div>
+                                        <div style="font-size: 12px; color: var(--text-muted);" id="analytics-ai-cases">0 cases</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Baseline Strategy</div>
+                                        <div style="font-size: 24px; font-weight: 700; color: var(--text-secondary);" id="analytics-base-rate">0.0%</div>
+                                        <div style="font-size: 12px; color: var(--text-muted);" id="analytics-base-cases">0 cases</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-widget-card">
+                            <h3>Key Insights</h3>
+                            <div style="padding: 16px;">
+                                <div class="info-row-item" style="margin-bottom: 12px;">
+                                    <span class="info-icon-check">📊</span>
+                                    <div class="info-text-block">
+                                        <strong id="insight-best-action">Most Effective Action</strong>
+                                        <span id="insight-best-action-desc">PAYMENT_LINK with 65% recovery rate</span>
+                                    </div>
+                                </div>
+                                <div class="info-row-item" style="margin-bottom: 12px;">
+                                    <span class="info-icon-check">⚡</span>
+                                    <div class="info-text-block">
+                                        <strong id="insight-avg-time">Average Recovery Time</strong>
+                                        <span id="insight-avg-time-desc">2.3 days from failure to recovery</span>
+                                    </div>
+                                </div>
+                                <div class="info-row-item">
+                                    <span class="info-icon-check">🎯</span>
+                                    <div class="info-text-block">
+                                        <strong id="insight-best-reason">Highest Recovery Reason</strong>
+                                        <span id="insight-best-reason-desc">temporary_bank_failure cases</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: ACTIVE CASES REGISTRY -->
+                <section id="section-cases" class="content-section">
+                    <div class="page-title-block">
+                        <h2>Active Cases Registry</h2>
+                        <p>Search, filter, and drill down into active failed payment cases.</p>
+                    </div>
+
+                    <div class="table-filter-bar">
+                        <div class="table-filter-controls">
+                            <select id="filter-state" class="form-select">
+                                <option value="">All States</option>
+                                <option value="NEW">New</option>
+                                <option value="ANALYZING">Analyzing</option>
+                                <option value="ACTION_PROPOSED">Action Proposed</option>
+                                <option value="ACTION_EXECUTED">Action Executed</option>
+                                <option value="RECOVERED">Recovered</option>
+                                <option value="STOPPED">Stopped</option>
+                            </select>
+                            
+                            <select id="filter-strategy" class="form-select">
+                                <option value="">All Strategies</option>
+                                <option value="AI">AI Strategy</option>
+                                <option value="BASELINE">Baseline Strategy</option>
+                            </select>
+                            
+                            <button id="btn-refresh-cases" class="btn btn-secondary">Refresh</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Case ID</th>
+                                    <th>Strategy</th>
+                                    <th>Amount at Risk</th>
+                                    <th>Failure Reason</th>
+                                    <th>State</th>
+                                    <th>Attempts</th>
+                                    <th>Priority Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cases-list-body">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; color: var(--text-muted);">Loading registry...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- SECTION 2B: RECOVERY ACTIONS -->
+                <section id="section-actions" class="content-section">
+                    <div class="page-title-block">
+                        <h2>Recovery Actions</h2>
+                        <p>All recovery actions executed across the system with status tracking.</p>
+                    </div>
+
+                    <div class="kpi-cards-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Total Actions</span>
+                                <span class="kpi-card-icon">⚡</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="actions-total">0</h2>
+                            <span class="kpi-card-desc">All recovery attempts</span>
+                        </div>
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Executed</span>
+                                <span class="kpi-card-icon">✓</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="actions-executed" style="color: var(--accent-green)">0</h2>
+                            <span class="kpi-card-desc">Successfully executed</span>
+                        </div>
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Blocked</span>
+                                <span class="kpi-card-icon">🚫</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="actions-blocked" style="color: var(--accent-red)">0</h2>
+                            <span class="kpi-card-desc">Policy blocked</span>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Action ID</th>
+                                    <th>Case ID</th>
+                                    <th>Action Type</th>
+                                    <th>Status</th>
+                                    <th>Proposed By</th>
+                                    <th>Executed At</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="actions-list-body">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: var(--text-muted);">Loading actions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- SECTION 2C: RECOVERY OUTCOMES -->
+                <section id="section-outcomes" class="content-section">
+                    <div class="page-title-block">
+                        <h2>Recovery Outcomes</h2>
+                        <p>Verified recovery outcomes with Razorpay evidence.</p>
+                    </div>
+
+                    <div class="kpi-cards-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Total Outcomes</span>
+                                <span class="kpi-card-icon">📊</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="outcomes-total">0</h2>
+                            <span class="kpi-card-desc">All verifications</span>
+                        </div>
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Recovered</span>
+                                <span class="kpi-card-icon">💰</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="outcomes-recovered" style="color: var(--accent-green)">0</h2>
+                            <span class="kpi-card-desc">Successfully recovered</span>
+                        </div>
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Failed</span>
+                                <span class="kpi-card-icon">❌</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="outcomes-failed" style="color: var(--accent-red)">0</h2>
+                            <span class="kpi-card-desc">Recovery failed</span>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Outcome ID</th>
+                                    <th>Case ID</th>
+                                    <th>Result</th>
+                                    <th>Recovered Amount</th>
+                                    <th>Verification Source</th>
+                                    <th>Verified At</th>
+                                    <th>Evidence</th>
+                                </tr>
+                            </thead>
+                            <tbody id="outcomes-list-body">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: var(--text-muted);">Loading outcomes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- SECTION 3A: AI DECISIONS -->
+                <section id="section-ai-decisions" class="content-section">
+                    <div class="page-title-block">
+                        <h2>AI Decisions</h2>
+                        <p>All AI-powered recovery recommendations with confidence scores.</p>
+                    </div>
+
+                    <div class="kpi-cards-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Total Decisions</span>
+                                <span class="kpi-card-icon">🧠</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="ai-decisions-total">0</h2>
+                            <span class="kpi-card-desc">AI recommendations</span>
+                        </div>
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Live Gemini</span>
+                                <span class="kpi-card-icon">💎</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="ai-decisions-gemini" style="color: var(--accent-primary)">0</h2>
+                            <span class="kpi-card-desc">Live LLM calls</span>
+                        </div>
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Fallback</span>
+                                <span class="kpi-card-icon">⚠️</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="ai-decisions-fallback" style="color: var(--accent-amber)">0</h2>
+                            <span class="kpi-card-desc">Baseline fallback</span>
+                        </div>
+                        <div class="kpi-stat-card">
+                            <div class="kpi-card-header">
+                                <span class="kpi-card-title">Avg Confidence</span>
+                                <span class="kpi-card-icon">📈</span>
+                            </div>
+                            <h2 class="kpi-card-value" id="ai-decisions-confidence">0%</h2>
+                            <span class="kpi-card-desc">Decision confidence</span>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Decision ID</th>
+                                    <th>Case ID</th>
+                                    <th>Provider</th>
+                                    <th>Recommended Action</th>
+                                    <th>Confidence</th>
+                                    <th>Recovery Probability</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ai-decisions-list-body">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: var(--text-muted);">Loading AI decisions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- SECTION 3B: AI VS BASELINE (already implemented) -->
+                <section id="section-evaluation" class="content-section">
+                    <div class="page-title-block">
+                        <h2>Evaluation Explorer</h2>
+                        <p>Conduct offline matched-pair simulations to evaluate the AI strategy against baseline rules.</p>
+                    </div>
+
+                    <div class="explorer-columns">
+                        <!-- Left: Simulation Control -->
+                        <div class="dashboard-widget-card explorer-runs-card">
+                            <h3>Run Simulator</h3>
+                            <form id="eval-run-form" class="eval-form-grid" style="margin-bottom: 20px;">
+                                <div>
+                                    <label class="form-group-label" for="eval-name">Run Name</label>
+                                    <input type="text" id="eval-name" class="form-text-input" style="width:100%" placeholder="e.g. Q4 Performance Run" value="Hackathon Demo Simulation" required>
+                                </div>
+                                <div class="eval-form-row">
+                                    <div>
+                                        <label class="form-group-label" for="eval-seed">Random Seed</label>
+                                        <input type="number" id="eval-seed" class="form-text-input" style="width:100%" value="42" required>
+                                    </div>
+                                    <div>
+                                        <label class="form-group-label" for="eval-size">Sample Size</label>
+                                        <input type="number" id="eval-size" class="form-text-input" style="width:100%" min="5" max="200" value="50" required>
+                                    </div>
+                                </div>
+                                <button type="submit" id="btn-run-eval" class="btn btn-primary btn-block">Execute Simulation</button>
+                            </form>
+
+                            <h3 style="margin-top: 24px;">Completed Runs</h3>
+                            <div id="eval-runs-container">
+                                <span style="font-size: 12px; color: var(--text-muted);">Loading runs...</span>
+                            </div>
+                        </div>
+
+                        <!-- Right: Simulation Results -->
+                        <div class="dashboard-widget-card" id="eval-results-container">
+                            <div class="card-empty-state">
+                                <span class="empty-state-icon">📊</span>
+                                <div class="empty-state-title">No Simulation Selected</div>
+                                <div class="empty-state-desc">Select a simulation run from the registry or trigger a new execution to view significance details.</div>
+                            </div>
+                            
+                            <div class="results-content hidden" id="eval-results-content">
+                                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:16px;">
+                                    <h3 id="eval-result-title" style="border:none; padding:0; margin:0;">Matched Pair Comparison</h3>
+                                    <span class="badge badge-amber">Offline Simulation</span>
+                                </div>
+
+                                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:20px;">
+                                    <div style="background-color:var(--bg-app); border:1px solid var(--border-color); padding:12px; border-radius:6px; text-align:center;">
+                                        <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">AI Recovery Rate</span>
+                                        <h4 id="eval-ai-rate" style="font-family:var(--font-heading); font-size:18px; font-weight:700; margin-top:4px;">0.0%</h4>
+                                    </div>
+                                    <div style="background-color:var(--bg-app); border:1px solid var(--border-color); padding:12px; border-radius:6px; text-align:center;">
+                                        <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Baseline Rate</span>
+                                        <h4 id="eval-base-rate" style="font-family:var(--font-heading); font-size:18px; font-weight:700; margin-top:4px;">0.0%</h4>
+                                    </div>
+                                    <div style="background-color:var(--bg-app); border:1px solid var(--border-color); padding:12px; border-radius:6px; text-align:center;">
+                                        <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Difference</span>
+                                        <h4 id="eval-diff-rate" style="font-family:var(--font-heading); font-size:18px; font-weight:700; margin-top:4px;">0.0%</h4>
+                                    </div>
+                                    <div style="background-color:var(--bg-app); border:1px solid var(--border-color); padding:12px; border-radius:6px; text-align:center;">
+                                        <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">p-value</span>
+                                        <h4 id="eval-p-value" style="font-family:var(--font-heading); font-size:18px; font-weight:700; margin-top:4px;">--</h4>
+                                    </div>
+                                </div>
+
+                                <div class="paired-details-box">
+                                    <h5>Matched-Pair Recovery Outcomes Matrix</h5>
+                                    <div class="matrix-grid">
+                                        <div class="matrix-cell">
+                                            <span class="label">Both Recovered</span>
+                                            <strong id="matrix-both">0</strong>
+                                        </div>
+                                        <div class="matrix-cell win-cell">
+                                            <span class="label">AI-Only Success</span>
+                                            <strong id="matrix-ai-only">0</strong>
+                                        </div>
+                                        <div class="matrix-cell loss-cell">
+                                            <span class="label">Baseline-Only Success</span>
+                                            <strong id="matrix-base-only">0</strong>
+                                        </div>
+                                        <div class="matrix-cell">
+                                            <span class="label">Neither Recovered</span>
+                                            <strong id="matrix-neither">0</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="stat-interpretation text-muted" id="eval-interpretation">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 4A: AUDIT LOGS -->
+                <section id="section-audit" class="content-section">
+                    <div class="page-title-block">
+                        <h2>Audit Logs</h2>
+                        <p>Comprehensive system activity logs for compliance and debugging.</p>
+                    </div>
+
+                    <div class="table-filter-bar">
+                        <div class="table-filter-controls">
+                            <select id="filter-audit-component" class="form-select">
+                                <option value="">All Components</option>
+                                <option value="risk_engine">Risk Engine</option>
+                                <option value="ai_decision">AI Decision</option>
+                                <option value="policy_engine">Policy Engine</option>
+                                <option value="action_executor">Action Executor</option>
+                                <option value="outcome_verification">Outcome Verification</option>
+                                <option value="webhook_handler">Webhook Handler</option>
+                            </select>
+                            
+                            <select id="filter-audit-event" class="form-select">
+                                <option value="">All Events</option>
+                                <option value="CASE_CREATED">Case Created</option>
+                                <option value="RISK_SCORED">Risk Scored</option>
+                                <option value="AI_DECISION_PROPOSED">AI Decision</option>
+                                <option value="POLICY_VALIDATED">Policy Validated</option>
+                                <option value="ACTION_EXECUTED">Action Executed</option>
+                                <option value="OUTCOME_VERIFIED">Outcome Verified</option>
+                            </select>
+                            
+                            <button id="btn-refresh-audit" class="btn btn-secondary">Refresh</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Case ID</th>
+                                    <th>Event</th>
+                                    <th>Component</th>
+                                    <th>Status</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-logs-body">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--text-muted);">Loading audit logs...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- SECTION 4B: POLICY & SAFETY (already implemented) -->
+                <section id="section-policy" class="content-section">
+                    <div class="page-title-block">
+                        <h2>Policy & Safety Guardrails</h2>
+                        <p>AI proposes. Policy decides. Razorpay executes. Evidence verifies.</p>
+                    </div>
+
+                    <div class="dashboard-main-grid">
+                        <div class="dashboard-widget-card">
+                            <h3>AI Decision Boundaries</h3>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Policy Engine Final Authority</strong>
+                                    <span>AI recommends actions. Policy Engine approves, blocks, or falls back to safe alternatives.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>PII Anonymization</strong>
+                                    <span>Customer personal data is anonymized before sending context to LLM providers.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Structured Output Validation</strong>
+                                    <span>AI responses are schema-validated. Invalid outputs trigger deterministic fallback.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Timeout Fallback</strong>
+                                    <span>AI provider unavailable or timeout triggers baseline deterministic strategy.</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-widget-card">
+                            <h3>Safety Rules</h3>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>Retry Limit Protection</strong>
+                                    <span>Maximum recovery attempts enforced. Prevents customer harassment.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>Recovery Window</strong>
+                                    <span>Time-bound recovery actions. No indefinite pursuit.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>Customer Opt-Out</strong>
+                                    <span>Respects customer preferences. Stops recovery on opt-out.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>Consent-Based Actions</strong>
+                                    <span>Direct retries require recurring payment consent. Falls back to payment links otherwise.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>High-Value Escalation</strong>
+                                    <span>Large-value cases can require human approval before execution.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-arrow">→</span>
+                                <div class="info-text-block">
+                                    <strong>Evidence-Only Recovery</strong>
+                                    <span>RECOVERED state requires verified Razorpay evidence. No fake outcomes.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 5: RELIABILITY -->
+                <section id="section-reliability" class="content-section">
+                    <div class="page-title-block">
+                        <h2>System Reliability & Guardrails</h2>
+                        <p>Comprehensive failure handling and data integrity protection.</p>
+                    </div>
+
+                    <div class="dashboard-main-grid">
+                        <div class="dashboard-widget-card">
+                            <h3>AI & LLM Reliability</h3>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Provider Timeout Handling</strong>
+                                    <span>15-second timeout with clean fallback to baseline strategy.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Malformed Response Protection</strong>
+                                    <span>Schema validation rejects invalid AI output. Triggers deterministic fallback.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>HTTP Error Handling</strong>
+                                    <span>API failures logged and handled gracefully. No cascading failures.</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-widget-card">
+                            <h3>Razorpay Integration Reliability</h3>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Credential Validation</strong>
+                                    <span>Missing credentials fail cleanly. No fake payment URLs generated.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>API Error Handling</strong>
+                                    <span>Razorpay API failures produce clean error states. No silent failures.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Webhook Signature Verification</strong>
+                                    <span>All webhooks verified using HMAC signature with raw request body.</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-widget-card">
+                            <h3>Data Integrity Protection</h3>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Webhook Idempotency</strong>
+                                    <span>Duplicate webhook events prevented via database constraint.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Amount Mismatch Guard</strong>
+                                    <span>Blocks RECOVERED if paid amount doesn't match expected amount.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Currency Validation</strong>
+                                    <span>Verifies currency consistency before marking recovery successful.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>State Regression Protection</strong>
+                                    <span>Prevents downgrading from RECOVERED to lower states. One-way terminal.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Transaction Rollback</strong>
+                                    <span>Atomic database transactions with explicit commit/rollback on webhook processing.</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-widget-card">
+                            <h3>Test Coverage & Quality</h3>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>93 Automated Tests</strong>
+                                    <span>Comprehensive test suite covering all critical paths and failure modes.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Failure Injection Testing</strong>
+                                    <span>Systematic failure scenarios: AI timeout, Razorpay errors, webhook edge cases.</span>
+                                </div>
+                            </div>
+                            <div class="info-row-item">
+                                <span class="info-icon-check">✓</span>
+                                <div class="info-text-block">
+                                    <strong>Integration Test Coverage</strong>
+                                    <span>End-to-end flows validated. Real Razorpay Test Mode integration tested.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- RIGHT CASE DETAILS SIDEBAR DRAWER -->
+        <div id="case-sidebar" class="details-drawer">
+            <div class="drawer-header">
+                <h3 id="sidebar-case-id">Case #0</h3>
+                <button class="btn-close-drawer" id="btn-close-sidebar">&times;</button>
+                <div class="drawer-header-meta">
+                    <span class="badge badge-blue" id="sidebar-strategy-badge">AI</span>
+                    <span class="badge badge-gray" id="sidebar-state-badge">NEW</span>
+                </div>
+            </div>
+            
+            <div class="drawer-body">
+                <!-- Section A: Trigger & Risk -->
+                <div class="drawer-section">
+                    <h4>Trigger & Demographics</h4>
+                    <div class="drawer-card">
+                        <div class="kv-list">
+                            <div class="kv-item"><span class="kv-label">Failed Amount:</span><span class="kv-val" id="spec-amount">₹0.00</span></div>
+                            <div class="kv-item"><span class="kv-label">Payment ID:</span><span class="kv-val" id="spec-payment-id" style="font-family:monospace; font-size:11px;">--</span></div>
+                            <div class="kv-item"><span class="kv-label">Method:</span><span class="kv-val" id="spec-method">--</span></div>
+                            <div class="kv-item"><span class="kv-label">Reason:</span><span class="kv-val" id="spec-reason">--</span></div>
+                            <div class="kv-item"><span class="kv-label">Risk Level/Score:</span><span class="kv-val" id="spec-risk">0.0</span></div>
+                            <div class="kv-item"><span class="kv-label">Prioritization:</span><span class="kv-val" id="spec-priority">0.0</span></div>
+                            <div class="kv-item"><span class="kv-label">Recurring Consent:</span><span class="kv-val" id="spec-consent">--</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section B: AI Context & Decision -->
+                <div class="drawer-section">
+                    <div class="drawer-action-row">
+                        <h4>AI Decision Intelligence</h4>
+                        <button id="btn-trigger-ai" class="btn btn-primary btn-sm">Trigger AI Step</button>
+                    </div>
+                    <div class="drawer-card" id="sidebar-ai-box">
+                        <span style="font-size: 12px; color: var(--text-muted);">No AI decision proposed yet.</span>
+                    </div>
+                </div>
+
+                <!-- Section C: Policy & Execution -->
+                <div class="drawer-section">
+                    <div class="drawer-action-row">
+                        <h4>Policy Guardrails & Execution</h4>
+                        <button id="btn-execute-action" class="btn btn-secondary btn-sm">Execute Action</button>
+                    </div>
+                    <div class="drawer-card" id="sidebar-policy-box">
+                        <span style="font-size: 12px; color: var(--text-muted);">No action executed yet.</span>
+                    </div>
+                </div>
+
+                <!-- Section D: Outcomes -->
+                <div class="drawer-section">
+                    <div class="drawer-action-row">
+                        <h4>Outcome Verification</h4>
+                        <button id="btn-verify-outcome" class="btn btn-primary btn-sm" style="background-color: var(--accent-green);">Verify Outcome</button>
+                    </div>
+                    <div class="drawer-card" id="sidebar-outcome-box">
+                        <span style="font-size: 12px; color: var(--text-muted);">Verification pending.</span>
+                    </div>
+                </div>
+
+                <!-- Section E: Audit Trail -->
+                <div class="drawer-section">
+                    <h4>Chronological Audit Trail</h4>
+                    <ul class="drawer-timeline" id="sidebar-timeline">
+                        <!-- Timeline entries loaded dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <!-- JS Logic Scripts -->
+    <script src="js/app.js?v=1.1"></script>
+</body>
+</html>
