@@ -234,7 +234,7 @@ async function loadCasesRegistry() {
 
             tr.innerHTML = `
                 <td><strong>#${c.id}</strong></td>
-                <td><span class="badge ${badgeClass}">${c.recovery_strategy_group}</span>${c.dataset_type === 'DEMO' ? '<span class="badge badge-amber" style="margin-left:4px;">DEMO READY</span>' : ''}</td>
+                <td><span class="badge ${badgeClass}">${c.recovery_strategy_group}</span>${(c.dataset_type || '').startsWith('DEMO') ? '<span class="badge badge-amber" style="margin-left:4px;">DEMO READY</span>' : ''}</td>
                 <td>${formatINR(c.amount_at_risk)}</td>
                 <td><code style="font-size:12px; color: var(--text-secondary);">${c.failure_reason || 'unknown'}</code></td>
                 <td><span class="badge ${stateBadgeClass}">${c.current_state}</span></td>

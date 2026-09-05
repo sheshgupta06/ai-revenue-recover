@@ -1,11 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
+from pathlib import Path
 from typing import List, Optional, Dict, Any
 from app.core.database import get_db
 from app.core.logging import logger
 from app.models.models import RevenueRiskCase, Payment
-from app.services.synthetic_generator import seed_synthetic_dataset, seed_evaluation_and_demo_dataset
+from app.services.synthetic_generator import (
+    seed_synthetic_dataset,
+    seed_evaluation_and_demo_dataset,
+    seed_csv_demo_dataset,
+)
 from app.services.risk_engine import RiskEngineService
 from app.services.baseline_strategy import BaselineStrategyService
 
@@ -150,6 +155,21 @@ def generate_synthetic_data(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Synthetic dataset generation failed: {e}"
         )
+
+
+@router.post("/synthetic/demo-csv/import", status_code=status.HTTP_201_CREATED)
+def import_demo_csv(db: Session = Depends(get_db)) -> dict:
+    """Import the repository's supplemental CSV rows as active DEMO_REFERENCE cases."""
+    csv_path = Path(__file__).resolve().parents[3] / "payment_link_demo_dataset.csv"
+    if not csv_path.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Demo CSV dataset not found.")
+    try:
+        counts = seed_csv_demo_dataset(db, str(csv_path))
+        return {"status": "success", "message": "CSV demo cases are active.", "seeded_records": counts}
+    except Exception as e:
+        db.rollback()
+        logger.error("demo_csv_import_failed", error=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 @router.post("/cases/trigger-failed-payment", response_model=CaseDetailResponse)
 def trigger_failed_payment_case(

@@ -1,3 +1,4 @@
+import csv
 import random
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
@@ -546,4 +547,80 @@ def seed_evaluation_and_demo_dataset(
         "payments_created": created_payments,
         "cases_created": created_cases,
         "total_profiles": evaluation_profiles + demo_profiles,
+    }
+
+
+def seed_csv_demo_dataset(db: Session, csv_path: str) -> Dict[str, int]:
+    """Import supplemental CSV demo rows as active, non-evaluation cases."""
+    from app.models.models import RevenueRiskCase
+    from app.services.risk_engine import RiskEngineService
+
+    merchant = db.query(Merchant).filter(Merchant.id == "mer_synth_001").first()
+    if not merchant:
+        merchant = Merchant(id="mer_synth_001", name="Synthetic Merchant Store")
+        db.add(merchant)
+        db.flush()
+
+    created_customers = created_payments = created_cases = 0
+    with open(csv_path, newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if row.get("dataset_type") != "DEMO":
+                raise ValueError(f"Unsupported dataset_type for {row.get('payment_id')}")
+            customer = db.query(Customer).filter(Customer.id == row["customer_id"]).first()
+            metadata = {
+                "profile_type": "Consumer Failed E-commerce Payment" if row["failure_reason"] == "expired_card" else "Checkout Abandonment",
+                "payment_route": row["payment_route"],
+                "historical_success_rate": float(row["historical_success_rate"]),
+                "customer_tenure_days": int(row["customer_tenure_days"]),
+                "subscription_status": row["subscription_status"],
+                "is_subscribed": row["subscription_status"] == "active",
+                "checkout_abandoned": row["checkout_abandonment"].lower() == "true",
+                "merchant_category": row["merchant_category"],
+                "previous_recovery_actions": [x for x in row["previous_recovery_actions"].split(",") if x],
+                "customer_opted_out": row["opt_out"].lower() == "true",
+                "within_recovery_window": row["recovery_window_valid"].lower() == "true",
+                "payment_attempt_number": int(row["previous_attempts"]),
+                "expected_action": row["expected_action"],
+            }
+            if not customer:
+                customer = Customer(
+                    id=row["customer_id"], email=f"{row['customer_id']}@example.com",
+                    name=f"CSV Demo Customer {row['customer_id']}", phone=None,
+                    is_synthetic=True, dataset_type="DEMO_REFERENCE", metadata_json=metadata,
+                )
+                db.add(customer)
+                db.flush()
+                created_customers += 1
+            payment = db.query(Payment).filter(Payment.id == row["payment_id"]).first()
+            if not payment:
+                payment = Payment(
+                    id=row["payment_id"], amount=int(float(row["amount"]) * 100), currency=row["currency"],
+                    status="created" if row["failure_reason"] == "checkout_abandoned" else "failed",
+                    method=row["payment_method"], failure_reason=row["failure_reason"],
+                    customer_id=customer.id, merchant_id=merchant.id, is_synthetic=True,
+                    dataset_type="DEMO_REFERENCE", metadata_json=metadata,
+                )
+                db.add(payment)
+                db.flush()
+                created_payments += 1
+            case = db.query(RevenueRiskCase).filter(
+                RevenueRiskCase.payment_id == payment.id,
+                RevenueRiskCase.dataset_type == "DEMO_REFERENCE",
+            ).first()
+            if not case:
+                case = RiskEngineService.create_or_update_recovery_case(
+                    db=db, payment_id=payment.id,
+                    event_type="CHECKOUT_ABANDONMENT" if row["failure_reason"] == "checkout_abandoned" else "FAILED_PAYMENT",
+                    strategy_group="AI",
+                )
+                case.dataset_type = "DEMO_REFERENCE"
+                case.current_state = "NEW"
+                db.flush()
+                created_cases += 1
+
+    db.commit()
+    return {
+        "customers_created": created_customers,
+        "payments_created": created_payments,
+        "cases_created": created_cases,
     }
