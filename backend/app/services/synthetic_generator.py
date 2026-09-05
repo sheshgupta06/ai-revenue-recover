@@ -382,16 +382,20 @@ def generate_demo_profiles() -> List[dict]:
     """Return the five stable, PAYMENT_LINK-eligible Razorpay Test Mode cases."""
     definitions = [
         ("expired_card", 2499, "card", "ecommerce", 0),
-        ("checkout_abandoned", 3999, "upi", "travel", 0),
-        ("expired_card", 1499, "card", "subscription", 0),
-        ("payment_terms_overdue", 75000, "netbanking", "b2b_services", 1),
-        ("checkout_abandoned", 8999, "wallet", "ecommerce", 0),
+        ("checkout_abandoned", 1500, "upi", "travel", 0),
+        ("expired_card", 3000, "card", "ecommerce", 0),
+        ("payment_terms_overdue", 75000, "netbanking", "b2b_services", 0),
+        ("checkout_abandoned", 2000, "upi", "ecommerce", 0),
     ]
     profiles = []
     for index, (reason, amount, method, category, attempt) in enumerate(definitions, start=1):
         customer_id = f"cust_demo_{index:03d}"
         metadata = {
-            "profile_type": "DEMO PAYMENT_LINK",
+            "profile_type": (
+                "Consumer Failed E-commerce Payment" if index in (1, 3)
+                else "B2B Invoice Overdue" if index == 4
+                else "Checkout Abandonment"
+            ),
             "merchant_category": category,
             "payment_route": "razorpay_test_mode",
             "historical_success_rate": 0.95 if index in (1, 3) else 0.80,
@@ -403,7 +407,7 @@ def generate_demo_profiles() -> List[dict]:
             "customer_opted_out": False,
             "within_recovery_window": True,
             "recovery_window_days_remaining": 7 if reason != "checkout_abandoned" else 2,
-            "payment_attempt_number": attempt + 1,
+            "payment_attempt_number": attempt,
             "demo_ready": True,
             "expected_action": "PAYMENT_LINK",
         }
@@ -465,6 +469,9 @@ def seed_evaluation_and_demo_dataset(
             db.add(customer)
             db.flush()
             created_customers += 1
+        elif profile["dataset_type"] == "DEMO":
+            customer.dataset_type = "DEMO"
+            customer.metadata_json = profile["customer"]["metadata_json"]
 
         payment = db.query(Payment).filter(Payment.id == profile["payment_id"]).first()
         if not payment:
@@ -479,6 +486,13 @@ def seed_evaluation_and_demo_dataset(
             db.add(payment)
             db.flush()
             created_payments += 1
+        elif profile["dataset_type"] == "DEMO":
+            payment.amount = profile["amount"]
+            payment.status = profile["status"]
+            payment.method = profile["method"]
+            payment.failure_reason = profile["failure_reason"]
+            payment.dataset_type = "DEMO"
+            payment.metadata_json = profile["metadata_json"]
 
         if profile["dataset_type"] == "EVALUATION":
             evaluation_profiles += 1
@@ -515,6 +529,12 @@ def seed_evaluation_and_demo_dataset(
                 case.current_state = "NEW"
                 db.flush()
                 created_cases += 1
+            elif not existing.recovery_actions and not existing.outcomes:
+                existing.amount_at_risk = payment.amount
+                existing.failure_reason = payment.failure_reason
+                existing.event_type = "CHECKOUT_ABANDONMENT" if profile["failure_reason"] == "checkout_abandoned" else "FAILED_PAYMENT"
+                existing.dataset_type = "DEMO"
+                existing.current_state = "NEW"
 
     db.commit()
     return {

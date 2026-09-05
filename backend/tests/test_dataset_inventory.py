@@ -61,6 +61,14 @@ def test_demo_ids_are_fixed_payment_link_ready_and_policy_approved(db):
     demo_cases = db.query(RevenueRiskCase).filter(RevenueRiskCase.dataset_type == "DEMO").order_by(RevenueRiskCase.id).all()
 
     assert [payment.id for payment in demo_payments] == expected_ids
+    assert [payment.amount for payment in demo_payments] == [249900, 150000, 300000, 7500000, 200000]
+    assert [payment.metadata_json["profile_type"] for payment in demo_payments] == [
+        "Consumer Failed E-commerce Payment",
+        "Checkout Abandonment",
+        "Consumer Failed E-commerce Payment",
+        "B2B Invoice Overdue",
+        "Checkout Abandonment",
+    ]
     assert len(demo_cases) == 5
     assert all(case.current_state == "NEW" for case in demo_cases)
     assert all(payment.status in {"failed", "created"} for payment in demo_payments)
