@@ -14,7 +14,7 @@ router = APIRouter()
 class EvaluationRequest(BaseModel):
     name: str = Field(..., description="Description / name of this evaluation run")
     random_seed: int = Field(42, description="Seeding used for synthetic simulation reproducibility")
-    sample_size: int = Field(50, gt=0, le=500, description="Number of matched customer profile pairs to run")
+    sample_size: int = Field(120, gt=0, le=500, description="Number of matched customer profile pairs to run")
 
 class BreakdownResponse(BaseModel):
     breakdown_type: str

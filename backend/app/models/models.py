@@ -22,6 +22,7 @@ class Customer(Base):
     phone = Column(String, nullable=True)
     name = Column(String, nullable=True)
     is_synthetic = Column(Boolean, default=False, nullable=False, index=True)
+    dataset_type = Column(String, default="EVALUATION", nullable=False, index=True)
     metadata_json = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -51,6 +52,7 @@ class Payment(Base):
     customer_id = Column(String, ForeignKey("customers.id"), nullable=False)
     merchant_id = Column(String, ForeignKey("merchants.id"), nullable=True)
     is_synthetic = Column(Boolean, default=False, nullable=False, index=True)
+    dataset_type = Column(String, default="EVALUATION", nullable=False, index=True)
     metadata_json = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -78,6 +80,7 @@ class RevenueRiskCase(Base):
     recovery_attempts = Column(Integer, default=0, nullable=False)
     max_attempts = Column(Integer, default=3, nullable=False)
     is_synthetic = Column(Boolean, default=False, nullable=False, index=True)
+    dataset_type = Column(String, default="EVALUATION", nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

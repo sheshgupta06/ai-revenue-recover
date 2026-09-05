@@ -16,31 +16,17 @@ from app.core.logging import logger
 
 class EvaluationService:
     @staticmethod
-    def run_offline_evaluation(db: Session, name: str, random_seed: int = 42, sample_size: int = 50) -> EvaluationRun:
+    def run_offline_evaluation(db: Session, name: str, random_seed: int = 42, sample_size: int = 120) -> EvaluationRun:
         """
         Runs a mathematically transparent paired offline counterfactual evaluation.
         Compares BASELINE vs AI strategies under identical cloned case conditions and an observable-only conversion model.
         """
         logger.info("evaluation_run_started", name=name, seed=random_seed, sample_size=sample_size)
 
-        # 1. Clear previous simulation evaluation cases/data to prevent DB contamination
-        db.query(RecoveryOutcome).filter(RecoveryOutcome.verification_source == "OFFLINE_SIMULATION").delete(synchronize_session=False)
-        db.query(RecoveryAction).filter(
-            RecoveryAction.case_id.in_(
-                db.query(RevenueRiskCase.id).filter(RevenueRiskCase.is_synthetic == True)
-            )
-        ).delete(synchronize_session=False)
-        db.query(AuditLog).filter(AuditLog.case_id.in_(
-            db.query(RevenueRiskCase.id).filter(RevenueRiskCase.is_synthetic == True)
-        )).delete(synchronize_session=False)
-        db.query(RevenueRiskCase).filter(RevenueRiskCase.is_synthetic == True).delete(synchronize_session=False)
-        db.query(Payment).filter(Payment.is_synthetic == True).delete(synchronize_session=False)
-        db.query(Customer).filter(Customer.is_synthetic == True).delete(synchronize_session=False)
-        db.commit()
-
         # Seed random state for reproducibility
         seed_random(random_seed)
         sim_rand = random.Random(random_seed)
+        run_token = f"{random_seed}_{db.query(EvaluationRun).count() + 1}"
 
         # Ensure default merchant exists
         merchant = db.query(Merchant).filter(Merchant.id == "mer_synth_001").first()
@@ -53,15 +39,23 @@ class EvaluationService:
         case_pairs = []
         for i in range(1, sample_size + 1):
             cust_prof = generate_customer_profile(i)
+            cust_prof["id"] = f"cust_eval_run_{run_token}_{i:04d}"
+            cust_prof["email"] = f"eval_run_{run_token}_{i:04d}@example.com"
             db_customer = Customer(
                 id=cust_prof["id"], email=cust_prof["email"], name=cust_prof["name"],
-                phone=cust_prof["phone"], is_synthetic=True, metadata_json=cust_prof["metadata_json"]
+                phone=cust_prof["phone"], is_synthetic=True, dataset_type="EVALUATION",
+                metadata_json=cust_prof["metadata_json"]
             )
             db.add(db_customer)
 
             # Generate 1 failed payment representing the active recovery trigger
             pay_profiles = generate_payments_for_customer(cust_prof, 0)
             pay_prof = pay_profiles[-1]
+            pay_prof["id"] = f"pay_eval_run_{run_token}_{i:04d}"
+            pay_prof["metadata_json"] = {
+                **(pay_prof.get("metadata_json") or {}),
+                "evaluation_profile_id": f"eval_sim_{i:04d}",
+            }
             pay_prof["status"] = "failed"  # Ensure it is failed to trigger case creation
             
             # Map failure reason based on method to have diverse segments
@@ -78,6 +72,7 @@ class EvaluationService:
                 id=pay_prof["id"], amount=pay_prof["amount"], currency=pay_prof["currency"],
                 status=pay_prof["status"], method=pay_prof["method"], failure_reason=pay_prof["failure_reason"],
                 customer_id=pay_prof["customer_id"], merchant_id=merchant.id, is_synthetic=True,
+                dataset_type="EVALUATION",
                 metadata_json=pay_prof["metadata_json"], created_at=pay_prof["created_at"]
             )
             db.add(db_payment)
@@ -89,7 +84,7 @@ class EvaluationService:
                 payment_id=db_payment.id, customer_id=db_customer.id, merchant_id=merchant.id,
                 amount_at_risk=db_payment.amount, event_type="FAILED_PAYMENT", current_state="NEW",
                 failure_reason=db_payment.failure_reason, recovery_strategy_group="BASELINE",
-                is_synthetic=True, recovery_probability=0.5, prioritization_score=db_payment.amount * 0.5
+                is_synthetic=True, dataset_type="EVALUATION", recovery_probability=0.5, prioritization_score=db_payment.amount * 0.5
             )
             db.add(case_baseline)
 
@@ -98,7 +93,7 @@ class EvaluationService:
                 payment_id=db_payment.id, customer_id=db_customer.id, merchant_id=merchant.id,
                 amount_at_risk=db_payment.amount, event_type="FAILED_PAYMENT", current_state="NEW",
                 failure_reason=db_payment.failure_reason, recovery_strategy_group="AI",
-                is_synthetic=True, recovery_probability=0.5, prioritization_score=db_payment.amount * 0.5
+                is_synthetic=True, dataset_type="EVALUATION", recovery_probability=0.5, prioritization_score=db_payment.amount * 0.5
             )
             db.add(case_ai)
             db.flush()
@@ -482,7 +477,9 @@ class EvaluationService:
         # Generate a deterministic roll seed based on the payment's synthetic ID and current attempt number
         # so matched case clones (A/B) evaluate the exact same roll for their respective actions.
         import hashlib
-        seed_str = f"roll_seed_{case.payment_id}_{case.recovery_attempts}"
+        payment_metadata = case.payment.metadata_json if case.payment and case.payment.metadata_json else {}
+        stable_profile_id = payment_metadata.get("evaluation_profile_id", case.payment_id)
+        seed_str = f"roll_seed_{stable_profile_id}_{case.recovery_attempts}"
         h = hashlib.sha256(seed_str.encode("utf-8")).digest()
         roll_seed = int.from_bytes(h[:4], byteorder="big")
         roll_rand = random.Random(roll_seed)

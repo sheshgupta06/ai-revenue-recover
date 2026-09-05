@@ -125,7 +125,10 @@ class RiskEngineService:
         # 4. Check if case already exists (deduplication)
         case = None
         if payment_id:
-            case = db.query(RevenueRiskCase).filter(RevenueRiskCase.payment_id == payment_id).first()
+            case = db.query(RevenueRiskCase).filter(
+                RevenueRiskCase.payment_id == payment_id,
+                RevenueRiskCase.recovery_strategy_group == strategy_group,
+            ).first()
 
         if case:
             # Update existing case details
@@ -153,6 +156,7 @@ class RiskEngineService:
                 recovery_attempts=0,
                 max_attempts=3,
                 is_synthetic=is_synthetic,
+                dataset_type=payment.dataset_type if payment else "EVALUATION",
                 created_at=datetime.utcnow(),
                 updated_at=datetime.utcnow()
             )

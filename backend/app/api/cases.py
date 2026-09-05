@@ -5,7 +5,7 @@ from typing import List, Optional, Dict, Any
 from app.core.database import get_db
 from app.core.logging import logger
 from app.models.models import RevenueRiskCase, Payment
-from app.services.synthetic_generator import seed_synthetic_dataset
+from app.services.synthetic_generator import seed_synthetic_dataset, seed_evaluation_and_demo_dataset
 from app.services.risk_engine import RiskEngineService
 from app.services.baseline_strategy import BaselineStrategyService
 
@@ -14,9 +14,9 @@ router = APIRouter()
 # --- Request/Response Pydantic Models ---
 
 class GenerateSyntheticRequest(BaseModel):
-    num_customers: int = Field(default=40, ge=1, le=200)
+    num_customers: int = Field(default=120, ge=1, le=500)
     seed: int = Field(default=42)
-    strategy_group: str = Field(default="AI", pattern="^(MIXED|BASELINE|AI)$")
+    strategy_group: str = Field(default="MIXED", pattern="^(MIXED|BASELINE|AI)$")
     demo_payment_link: bool = True
 
 class TriggerFailedPaymentRequest(BaseModel):
@@ -60,6 +60,7 @@ class CaseDetailResponse(BaseModel):
     recovery_strategy_group: str
     recovery_attempts: int
     is_synthetic: bool
+    dataset_type: str
 
     class Config:
         from_attributes = True
@@ -78,10 +79,21 @@ def generate_synthetic_data(
     case for the payment-link demo.
     """
     try:
+        if request.strategy_group == "MIXED":
+            counts = seed_evaluation_and_demo_dataset(
+                db,
+                evaluation_count=max(100, request.num_customers),
+                seed=request.seed,
+                include_demo=request.demo_payment_link,
+            )
+            return {
+                "status": "success",
+                "message": "Added matched evaluation profiles and dedicated Razorpay Test Mode demo cases.",
+                "seeded_records": counts,
+            }
+
         counts = seed_synthetic_dataset(
-            db,
-            request.num_customers,
-            request.seed,
+            db, request.num_customers, request.seed,
             demo_payment_link=request.demo_payment_link,
         )
         
@@ -222,11 +234,12 @@ def list_all_cases(
     state: str = None,
     strategy_group: str = None,
     is_synthetic: bool = None,
+    dataset_type: str = None,
     limit: int = 100
 ):
     """
     Returns all recovery cases with optional filters.
-    Supports: state, strategy_group, is_synthetic, limit.
+    Supports: state, strategy_group, is_synthetic, dataset_type, limit.
     """
     try:
         q = db.query(RevenueRiskCase)
@@ -236,6 +249,8 @@ def list_all_cases(
             q = q.filter(RevenueRiskCase.recovery_strategy_group == strategy_group)
         if is_synthetic is not None:
             q = q.filter(RevenueRiskCase.is_synthetic == is_synthetic)
+        if dataset_type:
+            q = q.filter(RevenueRiskCase.dataset_type == dataset_type.upper())
         cases = q.order_by(RevenueRiskCase.prioritization_score.desc()).limit(limit).all()
         return cases
     except Exception as e:

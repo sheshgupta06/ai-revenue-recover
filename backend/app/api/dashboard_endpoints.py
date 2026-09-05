@@ -50,12 +50,13 @@ def get_dashboard_metrics(
 
         recovery_revenue_rate = float(total_recovered_revenue / total_revenue_at_risk) if total_revenue_at_risk > 0 else 0.0
 
-        # 3. Strategy breakdowns (AI vs BASELINE)
-        ai_base_q = base_q.filter(RevenueRiskCase.recovery_strategy_group == "AI")
+        # 3. Strategy breakdowns (AI vs BASELINE), excluding live-demo fixtures.
+        comparison_q = base_q.filter(RevenueRiskCase.dataset_type != "DEMO")
+        ai_base_q = comparison_q.filter(RevenueRiskCase.recovery_strategy_group == "AI")
         ai_total = ai_base_q.count()
         ai_recovered = ai_base_q.filter(RevenueRiskCase.current_state == "RECOVERED").count()
 
-        baseline_base_q = base_q.filter(RevenueRiskCase.recovery_strategy_group == "BASELINE")
+        baseline_base_q = comparison_q.filter(RevenueRiskCase.recovery_strategy_group == "BASELINE")
         base_total = baseline_base_q.count()
         base_recovered = baseline_base_q.filter(RevenueRiskCase.current_state == "RECOVERED").count()
 

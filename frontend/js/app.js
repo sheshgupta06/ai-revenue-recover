@@ -234,7 +234,7 @@ async function loadCasesRegistry() {
 
             tr.innerHTML = `
                 <td><strong>#${c.id}</strong></td>
-                <td><span class="badge ${badgeClass}">${c.recovery_strategy_group}</span></td>
+                <td><span class="badge ${badgeClass}">${c.recovery_strategy_group}</span>${c.dataset_type === 'DEMO' ? '<span class="badge badge-amber" style="margin-left:4px;">DEMO READY</span>' : ''}</td>
                 <td>${formatINR(c.amount_at_risk)}</td>
                 <td><code style="font-size:12px; color: var(--text-secondary);">${c.failure_reason || 'unknown'}</code></td>
                 <td><span class="badge ${stateBadgeClass}">${c.current_state}</span></td>
@@ -301,6 +301,12 @@ async function fetchAndPopulateCaseDetails() {
         stateBadge.className = `badge ${stateClass}`;
 
         // Specs demographics
+        const datasetEl = document.getElementById('spec-dataset-type');
+        if (datasetEl) {
+            datasetEl.innerHTML = data.dataset_type === 'DEMO'
+                ? '<span class="badge badge-amber">DEMO READY · RAZORPAY TEST MODE</span>'
+                : `<span class="badge badge-gray">${data.dataset_type || 'EVALUATION'}</span>`;
+        }
         document.getElementById('spec-amount').innerText = formatINR(data.amount_at_risk);
         
         // Display Payment ID with link to Razorpay dashboard
