@@ -186,4 +186,25 @@ def test_create_payment_link_success(mock_client_class: MagicMock) -> None:
             "description": "Test payment link description",
             "reference_id": "ref_123"
         })
+@patch("app.services.razorpay_service.razorpay.Client")
+def test_create_payment_link_omits_repeating_synthetic_contact(mock_client_class: MagicMock) -> None:
+    mock_client = mock_client_class.return_value
+    mock_client.payment_link.create.return_value = {
+        "id": "plink_test_contact",
+        "short_url": "https://rzp.io/i/contact_test",
+        "status": "created",
+        "reference_id": "case_contact",
+    }
+    service = RazorpayService()
+
+    service.create_payment_link(
+        10000,
+        "Contact validation",
+        "case_contact",
+        customer_email="customer@example.com",
+        customer_phone="+91990000018",
+    )
+
+    payload = mock_client.payment_link.create.call_args.kwargs["data"]
+    assert "contact" not in payload["customer"]
 

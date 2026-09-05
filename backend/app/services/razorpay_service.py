@@ -1,5 +1,6 @@
 import razorpay
 import razorpay.errors as errors
+import re
 from pydantic import BaseModel, Field
 from app.core.config import settings
 from app.core.logging import logger
@@ -28,6 +29,40 @@ class RazorpayPaymentLinkDetails(BaseModel):
     reference_id: str | None = Field(None, description="Internal reference identifier mapping this link to our system")
 
 class RazorpayService:
+    @staticmethod
+    def _api_error_details(exc: Exception) -> dict:
+        """Extract non-sensitive SDK/API diagnostics for structured logs."""
+        response = getattr(exc, "response", None)
+        error_payload = getattr(response, "json", None) if response is not None else None
+        if callable(error_payload):
+            try:
+                error_payload = error_payload()
+            except Exception:
+                error_payload = None
+        error_payload = error_payload if isinstance(error_payload, dict) else {}
+        nested = error_payload.get("error") if isinstance(error_payload.get("error"), dict) else {}
+        return {
+            "http_status": getattr(exc, "status_code", None) or getattr(response, "status_code", None),
+            "razorpay_error_code": getattr(exc, "code", None) or nested.get("code"),
+            "razorpay_error_description": (
+                getattr(exc, "description", None)
+                or getattr(exc, "error_description", None)
+                or nested.get("description")
+                or str(exc)
+            ),
+            "request_id": getattr(exc, "request_id", None) or getattr(response, "headers", {}).get("X-Razorpay-Request-Id") if response is not None else getattr(exc, "request_id", None),
+        }
+
+    @staticmethod
+    def _safe_customer_contact(contact: str | None) -> str | None:
+        """Razorpay rejects synthetic contacts containing repeated digits."""
+        if not contact:
+            return None
+        digits = re.sub(r"\D", "", contact)
+        if len(digits) < 10 or re.search(r"(\d)\1\1", digits):
+            return None
+        return contact
+
     def __init__(self) -> None:
         """
         Initializes the service by resolving credentials from settings.
@@ -96,7 +131,7 @@ class RazorpayService:
             raise
         except (errors.BadRequestError, errors.ServerError, errors.GatewayError) as e:
             # Handle SDK-specific errors
-            logger.error("razorpay_sdk_error", payment_id=payment_id, error=str(e))
+            logger.error("razorpay_sdk_error", payment_id=payment_id, **self._api_error_details(e))
             raise RazorpayAPIError(f"Razorpay API call failed: {e}")
         except Exception as e:
             # Handle timeouts, network disconnects, or unexpected exceptions
@@ -116,11 +151,15 @@ class RazorpayService:
         Creates a payment link using the official SDK capability.
         Used strictly as a low-level capability for future recovery execution phases.
         """
+        safe_contact = self._safe_customer_contact(customer_phone)
         logger.info(
             "razorpay_create_payment_link_started", 
             amount=amount, 
             reference_id=reference_id,
-            customer_email=customer_email
+            currency="INR",
+            customer_email_present=bool(customer_email),
+            customer_contact_included=bool(safe_contact),
+            customer_contact_suppressed=bool(customer_phone and not safe_contact),
         )
         
         payload = {
@@ -137,8 +176,8 @@ class RazorpayService:
                 customer_data["name"] = customer_name
             if customer_email:
                 customer_data["email"] = customer_email
-            if customer_phone:
-                customer_data["contact"] = customer_phone
+            if safe_contact:
+                customer_data["contact"] = safe_contact
             payload["customer"] = customer_data
 
         try:
@@ -160,8 +199,11 @@ class RazorpayService:
         except RazorpayConfigError:
             raise
         except (errors.BadRequestError, errors.ServerError, errors.GatewayError) as e:
-            logger.error("razorpay_sdk_link_error", reference_id=reference_id, error=str(e))
-            raise RazorpayAPIError(f"Razorpay payment link creation failed: {e}")
+            details = self._api_error_details(e)
+            logger.error("razorpay_sdk_link_error", reference_id=reference_id, **details)
+            raise RazorpayAPIError(
+                f"Razorpay payment link creation failed: {details['razorpay_error_description']}"
+            )
         except Exception as e:
             logger.error("razorpay_unexpected_link_error", reference_id=reference_id, error=str(e))
             raise RazorpayAPIError(f"Unexpected connection failure creating Razorpay payment link: {e}")

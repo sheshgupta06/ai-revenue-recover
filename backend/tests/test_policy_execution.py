@@ -42,7 +42,7 @@ def test_create_payment_link_extension():
             reference_id="case_1002",
             customer_name="Synthetic Customer",
             customer_email="synth@example.com",
-            customer_phone="+919999999999"
+            customer_phone="+919876543210"
         )
         assert details2.id == "plink_test_123"
         
@@ -56,7 +56,7 @@ def test_create_payment_link_extension():
             "customer": {
                 "name": "Synthetic Customer",
                 "email": "synth@example.com",
-                "contact": "+919999999999"
+                "contact": "+919876543210"
             }
         })
 
