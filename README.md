@@ -1,369 +1,141 @@
 # AI Revenue Recovery Orchestrator
 
-An AI-powered revenue recovery system built for the **Razorpay AI Builder Internship 2026 — Track 3: AI Revenue Recovery**.
+An AI-assisted revenue recovery system for the Razorpay AI Builder Internship 2026, Track 3. It identifies revenue at risk, recommends a bounded recovery action, applies deterministic safety policies, verifies payment outcomes, and records an audit trail.
 
----
+## Why It Matters
 
-## 🚀 What Is This Project?
+This is not a generic payment retry bot. The system makes a revenue-level decision:
 
-Businesses lose revenue for many reasons:
+> Which intervention should be used, when should it happen, and when should recovery stop?
 
-* Failed payments.
-* Checkout abandonment.
-* Subscription payment failures.
-* Overdue invoices.
-* Repeated payment failures.
-* Other recoverable revenue opportunities.
+It compares AI-assisted decisions with a deterministic baseline so recovery impact can be evaluated using reproducible data.
 
-The AI Revenue Recovery Orchestrator identifies these opportunities, understands the context, selects an appropriate recovery strategy, executes a controlled workflow, verifies the result, and measures the revenue actually recovered.
-
----
-
-# 🎯 Core Goal
-
-The goal is not simply to retry failed payments.
-
-The goal is:
-
-> **Find revenue at risk and determine the safest, most effective way to recover it while maximizing measurable incremental revenue.**
-
----
-
-# 💡 What Makes It Different?
-
-Basic payment-recovery systems can already retry payments or send reminders.
-
-This project focuses on **revenue-level intelligence**.
-
-Instead of asking:
-
-> "Should this payment be retried?"
-
-The system asks:
-
-> "Given the available context, which recovery intervention should be used, when should it happen, when should we stop, and what is the expected revenue impact?"
-
-The system treats basic/existing recovery behavior as a baseline and attempts to demonstrate measurable improvement.
-
----
-
-# 🤖 AI Role
-
-AI is used for reasoning-heavy tasks.
-
-### AI handles:
-
-* Context interpretation.
-* Root-cause analysis.
-* Revenue-risk prioritization.
-* Recovery strategy selection.
-* Next-best-action reasoning.
-* Decision explanation.
-
-### AI does NOT handle:
-
-* Payment verification.
-* Amount calculations.
-* Authentication.
-* Authorization.
-* Webhook verification.
-* Retry limits.
-* STOP rules.
-* Database writes.
-* Security policies.
-
-These remain deterministic backend responsibilities.
-
----
-
-# 🔄 Core Workflow
+## Workflow
 
 ```text
-Revenue Event
-      ↓
-Revenue Risk Detection
-      ↓
-Context / Root Cause Analysis
-      ↓
-AI Recovery Strategy
-      ↓
-Safety / Policy Check
-      ↓
-Controlled Recovery Action
-      ↓
-Outcome Verification
-      ↓
-Recovered?
-   ↙       ↘
- YES       NO
-  ↓         ↓
- STOP    Next Action / STOP
-  ↓
-Metrics + Audit Trail
+Payment or revenue event
+        -> Risk detection
+        -> Context building
+        -> Structured AI decision
+        -> Policy and safety validation
+        -> Controlled recovery action
+        -> Outcome verification
+        -> Metrics and audit trail
 ```
 
----
+## Key Features
 
-# 🧠 AI Decision Example
+- FastAPI backend with PostgreSQL persistence and Alembic migrations.
+- Synthetic revenue-at-risk case generation for repeatable evaluation.
+- Risk scoring, case prioritization, baseline strategy, and AI decision engine.
+- Structured AI output validation with deterministic fallback when AI is unavailable.
+- Policy enforcement for retry limits, recovery windows, opt-out, escalation, and terminal STOP states.
+- Razorpay Test Mode integration with webhook signature verification and idempotent processing.
+- Static dashboard for revenue-at-risk, recovery, evaluation, cases, and audit information.
+- Test coverage for AI decisions, policy execution, webhooks, reliability, risk scoring, and evaluation.
 
-The AI may receive information such as:
+## AI and Safety Boundary
+
+AI is used for contextual reasoning, root-cause interpretation, prioritization, strategy selection, and explanations. Deterministic backend code remains authoritative for authentication, payment verification, amount calculations, retry limits, webhook verification, policy enforcement, database writes, and audit logging.
+
+The project uses synthetic data and Razorpay Test Mode only. Never use real customer data or real-money credentials during development.
+
+## Technology
+
+- Backend: Python, FastAPI, SQLAlchemy, Alembic
+- Database: PostgreSQL
+- Payments: Razorpay Test Mode
+- AI: Structured LLM provider integration with Gemini-compatible configuration
+- Frontend: Static HTML, CSS, and JavaScript dashboard
+- Tests: pytest
+
+## Project Layout
 
 ```text
-Amount: ₹2,499
-Payment Method: UPI
-Failure: Temporary Bank Timeout
-Previous Successful Payments: 8/10
-Previous Recovery Attempts: 0
+backend/
+  app/                 FastAPI application, services, models, and APIs
+  alembic/             Database migration configuration
+  tests/               Backend test suite
+frontend/
+  index.html           Dashboard page
+  css/styles.css       Dashboard styles
+  js/app.js            Dashboard behavior and API calls
+run.ps1                Starts backend and frontend locally on Windows
 ```
 
-It may return:
+## Local Setup
 
-```json
-{
-  "action": "RETRY_LATER",
-  "delay_minutes": 360,
-  "confidence": 0.84,
-  "reason": "Temporary bank timeout with strong payment history",
-  "expected_recovery_probability": 0.64,
-  "expected_recovered_amount": 1600
-}
+### 1. Configure the environment
+
+Create a root `.env` file. It is ignored by Git and must not be committed.
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/revenue_recovery
+ENV=development
+LOG_LEVEL=INFO
+
+# Optional for AI and Razorpay Test Mode
+GEMINI_API_KEY=your_test_key
+RAZORPAY_KEY_ID=your_test_key_id
+RAZORPAY_KEY_SECRET=your_test_key_secret
+RAZORPAY_WEBHOOK_SECRET=your_test_webhook_secret
 ```
 
-The backend validates this decision before any action is executed.
+### 2. Install dependencies
 
----
-
-# 🛡️ Safety & Guardrails
-
-The AI does not have unlimited authority.
-
-The system enforces:
-
-* Maximum recovery attempts.
-* Maximum recovery window.
-* Successful payment → STOP.
-* Customer STOP/opt-out → STOP.
-* High-value/risky case → human review when configured.
-* Invalid AI output → reject/fallback.
-* AI provider unavailable → deterministic fallback.
-* Repeated ineffective actions → STOP or escalate.
-
-All important decisions and actions are auditable.
-
----
-
-# 💳 Razorpay Integration
-
-Development uses **Razorpay Test Mode**.
-
-The project is designed to demonstrate:
-
-* Payment workflow integration.
-* Payment status handling.
-* Webhook processing.
-* Webhook verification.
-* Idempotency.
-* Controlled recovery workflows.
-
-No real-money transactions are required for development.
-
----
-
-# 📊 Data Strategy
-
-No real customer data is used.
-
-The project uses:
-
-### Synthetic Dataset
-
-Synthetic revenue-at-risk cases are generated for:
-
-* Development.
-* Testing.
-* Baseline evaluation.
-* AI evaluation.
-
-### Razorpay Test Mode
-
-Test-mode transactions/events are used to demonstrate real integration behavior.
-
----
-
-# 📈 Evaluation
-
-The project compares a deterministic baseline strategy against the AI strategy.
-
-### Key metrics
-
-* Revenue At Risk.
-* Baseline Revenue Recovered.
-* AI Revenue Recovered.
-* Incremental Revenue Recovered.
-* Recovery Rate.
-* Average Time to Recovery.
-* Intervention Count.
-* Unnecessary Interventions.
-* Escalation Rate.
-* Stop Rate.
-
-Metrics must be reproducible.
-
-No fabricated metrics are allowed.
-
----
-
-# 🏗️ Architecture
-
-```text
-                    Razorpay Test Mode
-                           │
-                           ▼
-                    FastAPI Backend
-                           │
-            ┌──────────────┼──────────────┐
-            ▼              ▼              ▼
-       Webhook         Risk Engine      Database
-       Handler              │
-                            ▼
-                     Context Builder
-                            │
-                            ▼
-                    AI Decision Engine
-                            │
-                            ▼
-                   Policy / Safety Engine
-                            │
-                     ┌──────┴──────┐
-                     ▼             ▼
-              Action Executor   Human Review
-                     │
-                     ▼
-              Recovery Workflow
-                     │
-                     ▼
-              Outcome Verification
-                     │
-                     ▼
-               Metrics + Audit
-                     │
-                     ▼
-                  Dashboard
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r backend\requirements.txt
 ```
 
-For detailed architecture, see:
+Make sure PostgreSQL is running and the database in `DATABASE_URL` exists.
 
-`ARCHITECTURE.md`
+### 3. Start the application
 
----
+From the repository root:
 
-# 🧰 Planned Technology
-
-Initial stack:
-
-* **Backend:** Python + FastAPI
-* **Database:** PostgreSQL
-* **Frontend:** React / Next.js
-* **AI:** LLM API with structured output
-* **Payments:** Razorpay Test Mode
-* **Version Control:** Git + GitHub
-
-Exact service providers may change based on testing and reliability.
-
----
-
-# 📁 Project Structure
-
-```text
-ai-revenue-recovery/
-│
-├── brain.md
-├── README.md
-├── AGENTS.md
-├── IMPLEMENTATION_PLAN.md
-├── ARCHITECTURE.md
-├── .gitignore
-├── .env.example
-│
-├── backend/
-├── frontend/
-├── data/
-├── scripts/
-└── docs/
+```powershell
+.\run.ps1
 ```
 
----
+The script starts:
 
-# 🔐 Security
+- Dashboard: http://localhost:3000
+- Backend API: http://localhost:8000
+- Swagger docs: http://localhost:8000/docs
 
-Never commit:
+To start services manually:
 
-* API keys.
-* Passwords.
-* Tokens.
-* `.env`.
-* Real customer data.
-* Private credentials.
+```powershell
+cd backend
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-Use environment variables for secrets.
+In a second terminal:
 
-Use `.env.example` only as a safe configuration template.
+```powershell
+cd frontend
+python -m http.server 3000
+```
 
----
+## Run Tests
 
-# 🧪 Reliability
+The test suite uses an in-memory SQLite database through the test configuration and does not require production credentials.
 
-The system is designed to handle:
+```powershell
+cd backend
+pytest -q
+```
 
-* Razorpay API failure.
-* API timeout.
-* Network failure.
-* AI provider outage.
-* Invalid AI output.
-* Duplicate webhook.
-* Out-of-order webhook.
-* Already-recovered payment.
-* Database failure.
-* Retry exhaustion.
-* Customer opt-out.
-* Recovery action failure.
+## Security Notes
 
----
+- Use Razorpay Test Mode only.
+- Keep API keys, passwords, tokens, and `.env` files out of Git.
+- Do not use real customer or payment data.
+- Never execute unvalidated text returned by an LLM.
+- All AI recommendations must pass backend policy validation before an action is executed.
 
-# 🛠️ Development Process
+## Project Status
 
-Development is divided into phases:
-
-1. Planning & Setup.
-2. Backend Foundation.
-3. Razorpay Integration.
-4. Webhooks.
-5. Revenue Risk + Synthetic Dataset.
-6. AI Decision Engine.
-7. Policy + Recovery Execution.
-8. Outcome Verification.
-9. Baseline vs AI Evaluation.
-10. Dashboard.
-11. Reliability Testing.
-12. Deployment.
-13. Final Submission.
-
-Each phase should be implemented and verified before moving to the next.
-
----
-
-# 📌 Project Status
-
-**Current Stage:** Planning / Phase 0
-
-**Hackathon Track:** Track 3 — AI Revenue Recovery
-
-**Working Title:** AI Revenue Recovery Orchestrator
-
----
-
-# 🏆 Project Principle
-
-> **Working software + measurable recovery + reliable engineering > unnecessary features.**
-
-The project should demonstrate that AI can be used responsibly to make revenue-recovery decisions while keeping payment execution, security, safety, and verification under reliable deterministic controls.
+The repository contains the working backend, static dashboard, migrations, synthetic evaluation flow, Razorpay integration, safety policies, and reliability tests. Metrics shown by the application should be treated as synthetic or test-mode results unless explicitly backed by a reproducible experiment.
