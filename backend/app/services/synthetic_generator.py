@@ -160,39 +160,13 @@ def seed_synthetic_dataset(
     demo_payment_link: bool = False,
 ) -> Dict[str, int]:
     """
-    Clears all existing synthetic customers/payments and seeds a fresh, reproducible batch.
-    Returns counts of seeded records.
+    Adds a reproducible legacy batch without deleting existing synthetic records.
+    Existing IDs are reused so repeated calls remain idempotent.
     """
     logger.info("synthetic_seeding_started", num_customers=num_customers, seed=seed)
     seed_random(seed)
 
-    # 1. Clean up old synthetic records
-    # Deleting cases, outcomes, actions, payments, and customers with is_synthetic=True
-    # To avoid foreign key constraint issues, we delete in reverse order
-    from app.models.models import RevenueRiskCase, RecoveryAction, RecoveryOutcome, AuditLog, AIDecision
-    
-    db.query(RecoveryOutcome).filter(RecoveryOutcome.case_id.in_(
-        db.query(RevenueRiskCase.id).filter(RevenueRiskCase.is_synthetic == True)
-    )).delete(synchronize_session=False)
-    
-    db.query(RecoveryAction).filter(RecoveryAction.case_id.in_(
-        db.query(RevenueRiskCase.id).filter(RevenueRiskCase.is_synthetic == True)
-    )).delete(synchronize_session=False)
-
-    db.query(AIDecision).filter(AIDecision.case_id.in_(
-        db.query(RevenueRiskCase.id).filter(RevenueRiskCase.is_synthetic == True)
-    )).delete(synchronize_session=False)
-    
-    db.query(AuditLog).filter(AuditLog.case_id.in_(
-        db.query(RevenueRiskCase.id).filter(RevenueRiskCase.is_synthetic == True)
-    )).delete(synchronize_session=False)
-    
-    db.query(RevenueRiskCase).filter(RevenueRiskCase.is_synthetic == True).delete(synchronize_session=False)
-    db.query(Payment).filter(Payment.is_synthetic == True).delete(synchronize_session=False)
-    db.query(Customer).filter(Customer.is_synthetic == True).delete(synchronize_session=False)
-    db.commit()
-
-    # Ensure a default synthetic merchant exists
+    # Ensure a default synthetic merchant exists.
     merchant = db.query(Merchant).filter(Merchant.id == "mer_synth_001").first()
     if not merchant:
         merchant = Merchant(id="mer_synth_001", name="Synthetic Merchant Store")
@@ -208,16 +182,18 @@ def seed_synthetic_dataset(
         # Pydantic Validation
         validated_customer = SyntheticCustomerSchema(**cust_profile)
         
-        db_customer = Customer(
-            id=validated_customer.id,
-            email=validated_customer.email,
-            phone=validated_customer.phone,
-            name=validated_customer.name,
-            is_synthetic=validated_customer.is_synthetic,
-            dataset_type="EVALUATION",
-            metadata_json=validated_customer.metadata_json
-        )
-        db.add(db_customer)
+        db_customer = db.query(Customer).filter(Customer.id == validated_customer.id).first()
+        if not db_customer:
+            db_customer = Customer(
+                id=validated_customer.id,
+                email=validated_customer.email,
+                phone=validated_customer.phone,
+                name=validated_customer.name,
+                is_synthetic=validated_customer.is_synthetic,
+                dataset_type="EVALUATION",
+                metadata_json=validated_customer.metadata_json
+            )
+            db.add(db_customer)
         seeded_customers += 1
 
         # Generate between 2 and 8 historical payments + 1 active
@@ -232,21 +208,22 @@ def seed_synthetic_dataset(
             # Pydantic Validation
             validated_payment = SyntheticPaymentSchema(**pay_profile)
             
-            db_payment = Payment(
-                id=validated_payment.id,
-                amount=validated_payment.amount,
-                currency=validated_payment.currency,
-                status=validated_payment.status,
-                method=validated_payment.method,
-                failure_reason=validated_payment.failure_reason,
-                customer_id=validated_payment.customer_id,
-                merchant_id=merchant.id,
-                is_synthetic=validated_payment.is_synthetic,
-                dataset_type=validated_payment.dataset_type,
-                metadata_json=validated_payment.metadata_json,
-                created_at=validated_payment.created_at
-            )
-            db.add(db_payment)
+            if not db.query(Payment).filter(Payment.id == validated_payment.id).first():
+                db_payment = Payment(
+                    id=validated_payment.id,
+                    amount=validated_payment.amount,
+                    currency=validated_payment.currency,
+                    status=validated_payment.status,
+                    method=validated_payment.method,
+                    failure_reason=validated_payment.failure_reason,
+                    customer_id=validated_payment.customer_id,
+                    merchant_id=merchant.id,
+                    is_synthetic=validated_payment.is_synthetic,
+                    dataset_type=validated_payment.dataset_type,
+                    metadata_json=validated_payment.metadata_json,
+                    created_at=validated_payment.created_at
+                )
+                db.add(db_payment)
             seeded_payments += 1
 
     db.commit()
